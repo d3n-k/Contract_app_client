@@ -196,8 +196,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
     <div>
      
       <h5 className="modal1_title">
-        Повышение квалификации специалиста(физ.лицо) за счет средств
-        республиканского(местного) бюджета
+        Регистрация на повышение квалификации за счет бюджетных средств (заявление на обучение)
       </h5>
       <div className="hr"></div>
       <div>
@@ -340,7 +339,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           type="text"
         />
       </div>
-      <div className="hr"></div>
+      {/* <div className="hr"></div>
       <p className="modal1_p">
         Местонахождение организации с указанием почтовых индекса и адреса
       </p>
@@ -398,7 +397,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           className="modal1_input"
           type="text"
         />
-      </div>
+      </div> */}
       <div className="hr"></div>
       <div style={{ display: "flex" }}>
         <input

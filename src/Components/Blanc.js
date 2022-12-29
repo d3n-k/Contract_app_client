@@ -14,7 +14,7 @@ function Blanc() {
                         Письмо можно прислать в бумажном варианте на почтовый адрес университета (220083, г. Минск, пр. Дзержинского, 83) либо в электронном виде по СМДО или по электронной почте на адрес <a className="link" href="mailto:bsmu@bsmu.by">bsmu@bsmu.by</a> или <a className="link" href="mailto:cancelary@bsmu.by">cancelary@bsmu.by</a>. 
                     </p>
                     <p style={{fontSize: '20px', fontFamily: 'Roboto',  marginLeft: '2rem'}}>
-                        <a className="link" href={link1}>Пример письма (файл пример для организаций)</a>.
+                        <a className="link span" href={link1}>Пример письма</a>.
                     </p>
                 </Col>
                 <Col md={4} >
@@ -27,7 +27,7 @@ function Blanc() {
                         Заявление можно прислать в бумажном варианте на почтовый адрес университета (220083, г. Минск, пр. Дзержинского, 83) либо в электронном виде по электронной почте на адрес <a className="link" href="mailto:bsmu@bsmu.by">bsmu@bsmu.by</a> или <a className="link" href="mailto:cancelary@bsmu.by">cancelary@bsmu.by</a>. 
                     </p>
                     <p style={{fontSize: '20px', fontFamily: 'Roboto',  marginLeft: '2rem'}}>
-                        <a className="link" href={link2}>Пример заявления (файл пример для физ.лиц)</a>.
+                        <a className="link span" href={link2}>Пример заявления</a>.
                     </p>
                     {/*<p style={{fontSize: '20px', fontFamily: 'Roboto',  marginLeft: '2rem'}}>
                     При получении <span className="span">направления на обучение</span> необходимо заполнить и распечатать <span className="span">Договор</span> о повышении квалификации руководящего работника (специалиста) <span className="span">за счет средств республиканского (местного) бюджета</span> или <span className="span">Договор</span> о повышении квалификации руководящего работника (специалиста) <span className="span">на платной основе</span>.

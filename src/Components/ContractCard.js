@@ -8,7 +8,7 @@ function ContractCard ( {title, buttonStyle, setModal} ) {
 
     return(
 
-        <Col>
+        <Col md={4} >
 
             { mobile
               ? <Card className="modile-card" style={{width: '18rem', minHeight: '413px', marginTop: '1.5rem' }} >

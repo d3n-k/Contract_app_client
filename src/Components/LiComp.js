@@ -6,10 +6,10 @@ function LiComp( { text } ) {
     return(
         <div>
             <Row style={{marginTop:'1rem'}} >
-                <Col xs={3} sm={3} lg={2} >
+                <Col xs={2} sm={2} lg={1} >
                    <img className='icon' alt='' src={icon}/>
                 </Col>
-                <Col xs={9} sm={9} lg={10} >
+                <Col xs={10} sm={10} lg={11} >
                   <p className='text' > {text} </p>
                 </Col>
             </Row>

@@ -5,7 +5,7 @@ import icon from './../imgs/icon.png';
 function LiComp( { text } ) {
     return(
         <div>
-            <Row style={{marginTop:'2rem'}} >
+            <Row style={{marginTop:'1rem'}} >
                 <Col xs={3} sm={3} lg={2} >
                    <img className='icon' alt='' src={icon}/>
                 </Col>

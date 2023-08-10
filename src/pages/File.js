@@ -239,22 +239,26 @@ function File() {
   }
 
   function DownloadTemp1() {
+    let url = process.env.REACT_APP_HOST + "/download";
     axios
       .get(process.env.REACT_APP_HOST + "/download", { responseType: "blob" })
       .then((res) => {
-        const pdfBlob3 = new Blob([res.data], { type: "application/odt" });
+        const pdfBlob3 = new Blob([res.data], { type: "application/docx" });
 
-        saveAs(pdfBlob3, "template1.odt");
-      });
+        saveAs(pdfBlob3, "template1.docx");
+      })
+      .catch(
+        (e)=> {alert("exception " + e);}
+      );
   }
 
   function DownloadTemp2() {
     axios
       .get(process.env.REACT_APP_HOST + "/download2", { responseType: "blob" })
       .then((res) => {
-        const pdfBlob = new Blob([res.data], { type: "application/odt" });
+        const pdfBlob = new Blob([res.data], { type: "application/docx" });
 
-        saveAs(pdfBlob, "template2.odt");
+        saveAs(pdfBlob, "template2.docx");
       });
   }
 
@@ -262,9 +266,9 @@ function File() {
     axios
       .get(process.env.REACT_APP_HOST + "/download3", { responseType: "blob" })
       .then((res) => {
-        const pdfBlob2 = new Blob([res.data], { type: "application/odt" });
+        const pdfBlob2 = new Blob([res.data], { type: "application/docx" });
 
-        saveAs(pdfBlob2, "template3.odt");
+        saveAs(pdfBlob2, "template3.docx");
       });
   }
 
@@ -357,7 +361,7 @@ function File() {
         <h2 style={{ textAlign: "center" }}>Редактор шаблонов договоров</h2>
         <Row style={{ marginTop: "4rem" }}>
           <Col>
-            <CardComponent name='Шаблон договора №1 (за счет средств республиканского бюджета)'
+            <CardComponent name='Шаблон заявления №1 (за счет средств республиканского бюджета)'
             DownloadTemp={DownloadTemp1} selectFile={selectFile1} postFile={postFile1} marginTop='1rem' />
           </Col>
           <Col>

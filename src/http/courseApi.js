@@ -22,6 +22,11 @@ export const fetchOneCourse = async (id) => {
     return data;
 }
 
+export const fetchCourseByNumber = async (number) => {
+    const {data} = await $host.get('api/course/num/' + number);
+    return data;
+}
+
 export const updateCourse = async (id, course) => {
     const {data} = await $authHost.put('api/course/' + id, course);
     return data;

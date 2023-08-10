@@ -1,22 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
 import { createCourse } from "../http/courseApi";
+import { fetchCourseTypes, fetchOneCourseType } from "../http/courseTypeApi";
 
 function CourseModal({ setVisible }) {
   const [name, setName] = useState("");
   const [number, setNumber] = useState('');
   const [price, setPrice] = useState("");
   const [date, setDate] = useState("");
+  const [select, setSelect] = useState('');
+  const [courseTypes, setCourseTypes] = useState(['Тип']);
+
+  useEffect(() => {
+    fetchCourseTypes().then((data) => {
+      setCourseTypes(data);
+    });
+  }, []);
 
   const addCourse = () => {
     const re = /^\d+,\d+$/;
-    if(re.test(String(price).toLowerCase()) || price === '') {
-      createCourse({ number: number, name: name, price: price, date: date }).then(
+    if (re.test(String(price).toLowerCase()) || price === '') {
+      createCourse({ number: number, name: name, price: price, date: date, type: select}).then(
         (data) => {
           setName("");
           setNumber('');
           setPrice("");
           setDate("");
+          setSelect(0);
           setVisible(false);
           window.location.reload();
         }
@@ -26,7 +36,7 @@ function CourseModal({ setVisible }) {
     }
   };
 
-  
+
   return (
     <div>
       <h3 style={{ textAlign: "center", marginTop: "2rem" }}>Добавить курс</h3>
@@ -37,8 +47,18 @@ function CourseModal({ setVisible }) {
           type="number"
           placeholder="Введите №ПК..."
         />
+        <select
+          value={select}
+          onChange={(e) => setSelect(e.target.value)}
+          name="select"
+          className="select_course">
+          <option value="0" style={{ margin: '5rem' }}>Тип образовательной программы</option>
+          {courseTypes.map((type) => (
+            <option value={type.id} style={{ margin: '5rem' }}>{type.name}</option>
+          ))}
+        </select>
         <textarea
-        className="text_edit"
+          className="text_edit"
           onChange={(e) => setName(e.target.value)}
           value={name}
           type="text"

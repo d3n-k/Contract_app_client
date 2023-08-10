@@ -5,7 +5,7 @@ import { Container, Button, Row, Col } from "react-bootstrap";
 import { Context } from "..";
 import trash from "./../imgs/trash_icon.svg";
 import { createAdmin, deleteAdmin, fetchAdmins } from "../http/AdminApi";
-import { deleteUser, fetchUsers } from "../http/userApi";
+import { deleteUser, fetchUsers, loginFunc } from "../http/userApi";
 
 const Admin = observer(() => {
   const { admin } = useContext(Context);
@@ -22,11 +22,18 @@ const Admin = observer(() => {
       createAdmin({ login: login }).then((data) => {
         setLogin("");
         window.location.reload();
+      }).catch((e) => {
+        alert(e.message);
       });
     }
   };
 
   function deleteAd(id, login) {
+    // loginFunc("MaltsauSV@bsmu.by", "9576330109576$t").then((data) => {
+    //   alert(data);
+    // }).catch((e) => {
+    //   alert(e.message);
+    // });
     deleteAdmin(id).then((data) => {
       user.users.forEach((us) => {
         if (us.login === login + "@bsmu.by") {
@@ -36,6 +43,8 @@ const Admin = observer(() => {
         }
       });
       window.location.reload();
+    }).catch((e) => {
+      alert(e.message);
     });
   }
 

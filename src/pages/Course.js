@@ -14,7 +14,7 @@ import Pages from "../Components/Pages";
 import { fetchYear, updateYear } from "../http/YearApi";
 
 const Course = observer(() => {
-  const [courseEdit, setCourseEdit] = useState({});
+  const [ courseEdit, setCourseEdit] = useState({});
   const [modall, setModall] = useState(false);
   const [editt, setEditt] = useState(false);
 
@@ -48,9 +48,10 @@ const Course = observer(() => {
     });
   }, [course.page]);
 
-  function editFunc(id) {
+  function editFunc(cours) {
     setEditt(true);
-    fetchOneCourse(id).then((data) => setCourseEdit(data));
+    setCourseEdit(cours);
+    //fetchOneCourse(id).then((data) => setCourseEdit(data));
   }
 
   const updateYr = () => {
@@ -149,7 +150,7 @@ const Course = observer(() => {
               <Col md={2}>{cours.date}</Col>
               <Col md={1}>
                 <img
-                  onClick={() => editFunc(cours.id)}
+                  onClick={() => editFunc(cours)}
                   style={{ height: "27px", cursor: "pointer" }}
                   src={edit}
                   alt=""

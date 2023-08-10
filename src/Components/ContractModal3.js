@@ -5,32 +5,30 @@ import { Button, Container, Row, Col } from "react-bootstrap";
 import { observer } from "mobx-react-lite";
 import { saveAs } from "file-saver";
 import { Context } from "..";
-import { fetchAllCourses } from "../http/courseApi";
+import { fetchCourseByNumber } from "../http/courseApi";
 import axios from "axios";
 import translate from 'translate';
 import { fetchYear } from "../http/YearApi";
 import { createContract } from "../http/ContractApi";
 import { da, yet } from "../functions/dateFunc";
+import { fetchCourseTypes } from "../http/courseTypeApi";
 
 const ContractModal3 = observer(({ setVisible, setLoading }) => {
+  const [formValid, setFormValid] = useState(false);
+  const [checked, setChecked] = useState(true);
+  const [courseTypes, setCourseTypes] = useState(['Тип1', 'Тип2']);
+
+  const [serNumberError, setSerNumberError] = useState(false);
+  const [dirNumberError, setDirNumberError] = useState(false);
+  const [fullNameError, setFullNameError] = useState(false);
+
+  const [course, setCourse] = useState({});
+  const [courseName, setCourseName] = useState("");
+  const [newDate, setNewDate] = useState('');
+
   const [img, setImg] = useState(false);
   const [img2, setImg2] = useState(false);
 
-  const [serNumberEmpty, setSerNumberEmpty] = useState(false);
-  const [dirNumberEmpty, setDirNumberEmpty] = useState(false);
-  const [fullNameEmpty, setFullNameEmpty] = useState(false);
-  const [formValid, setFormValid] = useState(false);
-  const [checked, setChecked] = useState(true);
-
-  const [serNumberError, setSerNumberError] = useState("Заполните это поле!");
-  const [dirNumberError, setDirNumberError] = useState("Заполните это поле!");
-  const [fullNameError, setFullNameError] = useState("Заполните это поле!");
-
-  const [server, setServer] = useState({});
-  const [cour, setCour] = useState("");
-  const [date, setDate] = useState("");
-  const [newDate, setNewDate] = useState("");
-  const [price, setPrice] = useState('');
   const [pdf, setPdf] = useState({
     serialNamber: "",
     directionNamber: "",
@@ -49,50 +47,33 @@ const ContractModal3 = observer(({ setVisible, setLoading }) => {
   });
 
   const [yearText, setYearText] = useState({});
-
-  const [id, setId] = useState('');
-
-  const { year } = useContext(Context);
-  const { course } = useContext(Context);
-
   const [time, setTime] = useState('');
 
-  translate.engine = "google"; 
+  translate.engine = "google";
   translate.key = process.env.GOOGLE_KEY;
 
-  useEffect( () => {
+  useEffect(() => {
     if (!checked || serNumberError || dirNumberError || fullNameError) {
       setFormValid(false);
     } else {
       setFormValid(true);
     }
- }, [checked, serNumberError, dirNumberError, fullNameError])
-
- useEffect(() => {
-  fetchAllCourses().then((data) => course.setAllCourses(data));
-  fetchYear().then((data) => setYearText(data[0]));
-}, []);
-
-useEffect( () => {
-  setNewDate(`___.___.${yearText.name} по ___.___.${yearText.name}`);
-}, [yearText])
+  }, [checked, serNumberError, dirNumberError, fullNameError])
 
   useEffect(() => {
-    course.allCourses.forEach((cours) => {
-      if (cours.number == pdf.serialNamber) {
-        setCour(cours.name);
-        setDate(cours.date);
-        setPrice(cours.price);
-        setId(cours.id);
-      }
-    });
-  }, [pdf.serialNamber]);
+    fetchCourseTypes().then((data) => setCourseTypes(data));
+    fetchYear().then((data) => setYearText(data[0].name));
+  }, []);
 
   useEffect(() => {
-    if (date) {
-      let dates = date.split("-");
+    setNewDate(`___.___.${yearText.name} по ___.___.${yearText.name}`);
+  }, [yearText]);
+
+  useEffect(() => {
+    if (course.date) {
+      let dates = course.date.split("-");
       dates = dates.map(function (el) {
-        return el + `.${yearText.name}`;
+        return el + `.${yearText}`;
       });
       dates[0] = dates[0] + " по ";
       let res = dates.join("");
@@ -100,7 +81,8 @@ useEffect( () => {
     } else {
       setNewDate('');
     }
-  }, [date]);
+    setCourseName(course.name);
+  }, [course]);
 
   function clickDetails1() {
     if (img) {
@@ -119,24 +101,32 @@ useEffect( () => {
   }
 
   function createAndDownloadPdf() {
-    if(yet(time) === 'go') {
+    const server = {
+      ...pdf,
+      cour: course.name,
+      date: newDate,
+      type: getCourseType(course),
+      price: course.price,
+      year: yearText
+    };
+    if (yet(time) === 'go') {
       setLoading(true);
-    axios
-      .post(process.env.REACT_APP_HOST + "/create-pdf3", server)
-      .then(() =>
-        axios.get(process.env.REACT_APP_HOST + "/contract3", { responseType: "blob" })
-      )
-      .then((res) => {
-        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
-        const text = translate(pdf.fullName, { from : 'ru', to : "en"  });
-        text.then(data => {
-          data = data.split(' ').join('_');
-          saveAs(pdfBlob, `BGMU_Dogovor_${data}.pdf`);
-          createContract({ fullname: server.fullName, courseId: id, naprav: server.directionNamber }).then((data) => {});
-        })
+      axios
+        .post(process.env.REACT_APP_HOST + "/create-pdf3", server)
+        .then(() =>
+          axios.get(process.env.REACT_APP_HOST + "/contract3", { responseType: "blob" })
+        )
+        .then((res) => {
+          const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+          const text = translate(pdf.fullName, { from: 'ru', to: "en" });
+          text.then(data => {
+            data = data.split(' ').join('_');
+            saveAs(pdfBlob, `BGMU_Dogovor_${data}.pdf`);
+            createContract({ fullname: server.fullName, courseId: course.id, naprav: server.directionNamber }).then((data) => { });
+          })
 
-      }).finally( () => setLoading(false));
-    setVisible(false);
+        }).finally(() => setLoading(false));
+      setVisible(false);
     } else if (yet(time) === 'forbidden') {
       alert('Курс уже начался!');
     } else {
@@ -144,53 +134,55 @@ useEffect( () => {
     }
   }
 
+  const getCourseType = (course) => {
+    return (course.type ? courseTypes[course.type - 1] : courseTypes[1]).name_r;
+  }
+
   function handleChange({ target: { value, name } }) {
     setPdf({ ...pdf, [name]: value });
-    if (!pdf.serialNamber) {
-      setSerNumberError("Заполните это поле!");
-    } else {
-      setSerNumberError("");
+    if (name === "serialNamber") {
+      updateCourse(value);
     }
-    if (!pdf.directionNamber) {
-      setDirNumberError("Заполните это поле!");
-    } else {
-      setDirNumberError("");
-    }
-    if (!pdf.fullName) {
-      setFullNameError("Заполните это поле!");
-    } else {
-      setFullNameError("");
+  }
+
+  function updateCourse(number) {
+    let empty = number === '';
+    let isInteger = !isNaN(+number);
+    if (!empty && isInteger) {
+      fetchCourseByNumber(number)
+        .then((data) => {
+          if (data !== null) {
+            setCourse(data);
+          } else {
+            setCourse({});
+          }
+        });
+      setSerNumberError(false);
     }
   }
 
   useEffect(() => {
-    const newObj = {
-      ...pdf,
-      cour: cour,
-      date: newDate,
-      price: price,
-      year: yearText.name
-    };
-    setServer(newObj);
-  }, [pdf]);
-
-  useEffect(() => {
     setTime(da(newDate));
-}, [newDate])
+  }, [newDate])
 
   const blurHandler = (e) => {
+    let text = e.target.value;
+    let empty = text === '';
+    let isInteger = !isNaN(+text);
     switch (e.target.name) {
       case "serialNamber":
-        setSerNumberEmpty(true);
+        setSerNumberError(empty || !isInteger);
         break;
       case "directionNamber":
-        setDirNumberEmpty(true);
+        setDirNumberError(empty || !isInteger);
         break;
       case "fullName":
-        setFullNameEmpty(true);
+        setFullNameError(empty);
         break;
     }
   };
+
+  let errorText = 'Заполните это поле!';
 
   return (
     <div>
@@ -217,22 +209,18 @@ useEffect( () => {
         />
 
         <div>
-          {serNumberEmpty && serNumberError && (
-            <div style={{ color: "red" }}>{serNumberError}</div>
+          {serNumberError && (
+            <div style={{ color: "red" }}>{errorText}</div>
           )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="serialNamber"
             onChange={handleChange}
-            type="text"
+            type="number"
             placeholder="Введите порядковый номер..."
             className="modal1_input"
           />
-          {course.allCourses.map((cours) => {
-            if (cours.number == pdf.serialNamber) {
-              return <div key={cours.id}> {cours.name} </div>;
-            }
-          })}
+          {courseName}
         </div>
       </div>
       <div className="hr"></div>
@@ -254,14 +242,14 @@ useEffect( () => {
         />
 
         <div>
-          {dirNumberEmpty && dirNumberError && (
-            <div style={{ color: "red" }}>{dirNumberError}</div>
+          {dirNumberError && (
+            <div style={{ color: "red" }}>{errorText}</div>
           )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="directionNamber"
             onChange={handleChange}
-            type="text"
+            type="number"
             placeholder="Введите номер направления..."
             className="modal1_input"
           />
@@ -269,8 +257,8 @@ useEffect( () => {
       </div>
       <div className="hr"></div>
       <div>
-        {fullNameEmpty && fullNameError && (
-          <div style={{ color: "red" }}>{fullNameError}</div>
+        {fullNameError && (
+          <div style={{ color: "red" }}>{errorText}</div>
         )}
         <input
           onBlur={(e) => blurHandler(e)}

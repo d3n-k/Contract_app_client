@@ -1,24 +1,36 @@
 import { observer } from "mobx-react-lite";
 import { Container, Button } from "react-bootstrap";
 import AdminNavbar from "../Components/AdminNavbar";
-import { Context } from "..";
 import { useContext, useEffect, useState } from "react";
-import { fetchAnnounce, updateAnnounce } from "../http/AnnounceApi";
+import { fetchAnnounce, updateAnnounce, createAnnounce } from "../http/AnnounceApi";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const Announce = observer(() => {
-  const { announ } = useContext(Context);
-  const [announceText, setAnnounceText] = useState({});
-
+  const [announce, setAnnounce] = useState({});
+  const [announceId, setAnnounceId] = useState(null);
 
   useEffect(() => {
-    fetchAnnounce().then((data) => setAnnounceText(data[0]));
+    fetchAnnounce().then((data) => {
+      if (data.length > 0) {
+        setAnnounce(data[0]);
+        setAnnounceId(data[0].id);
+      }
+    })
   }, []);
 
-
-
   const updateAnn = () => {
-    updateAnnounce(announceText.id, announceText).then(
+    updateAnnounce(announce.id, announce).then(
       (data) => {
+        window.location.reload();
+      }
+    );
+  };
+
+  const createAnn = () => {
+    createAnnounce(announce).then(
+      (data) => {
+        setAnnounceId(data.id);
         window.location.reload();
       }
     );
@@ -41,14 +53,15 @@ const Announce = observer(() => {
           Введите текст объявления, которое появится на странице регистрации:
         </p>
 
-        <textarea
-          value={announceText.name}
-          onChange={(e) => setAnnounceText({...announceText, name: e.target.value})}
-          className="textareat"
-        ></textarea>
+        <ReactQuill className="texteditor" theme="snow" value={announce.name} onChange={(value) => setAnnounce({ ...announce, name: value })} />
 
         <div>
-          <Button onClick={updateAnn} className="announ_button" variant="success">
+          <Button onClick={() => {
+            if (announceId === null)
+              createAnn();
+            else
+              updateAnn();
+          }} className="announ_button" variant="success">
             Сохранить
           </Button>
         </div>

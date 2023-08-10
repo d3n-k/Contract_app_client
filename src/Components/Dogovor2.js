@@ -1,22 +1,18 @@
 import { observer } from "mobx-react-lite";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Col, Row } from "react-bootstrap";
-import { Context } from "..";
 import { fetchContracts } from "../http/ContractApi";
-import { fetchAllCourses } from "../http/courseApi";
+import { fetchCourseByNumber } from "../http/courseApi";
 import { fetchYear } from "../http/YearApi";
 import trash from "./../imgs/trash_icon.svg";
 import axios from "axios";
 import { saveAs } from "file-saver";
 
 const Dogovor2 = observer(() => {
-  const { course } = useContext(Context);
 
+  const [course, setCourse] = useState({});
+  const [courseName, setCourseName] = useState("");
   const [yearText, setYearText] = useState({});
-  const [value, setValue] = useState("");
-  const [id, setId] = useState("");
-  const [name, setName] = useState("");
-  const [date, setDate] = useState("");
   const [users, setUsers] = useState([]);
   const [lastDate, setLastDate] = useState("");
 
@@ -24,27 +20,28 @@ const Dogovor2 = observer(() => {
   const [nameUsers, setNameUsers] = useState([]);
 
   useEffect(() => {
-    fetchAllCourses().then((data) => course.setAllCourses(data));
-    fetchYear().then((data) => setYearText(data[0]));
+    fetchYear().then((data) => setYearText(data[0].name));
   }, []);
 
-  useEffect(() => {
-    course.allCourses.forEach((cours) => {
-      if (cours.number == value) {
-        setId(cours.id);
-        setName(cours.name);
-        setDate(cours.date);
-      }
-    });
-  }, [value]);
-
   useEffect( () => {
-    if (id) {
-      fetchContracts({ courseId: id }).then((data) => {
+    if (course.date) {
+      let dates = course.date.split("-");
+      dates = dates.map(function (el) {
+        return el + `.${yearText}`;
+      });
+      setLastDate(dates[1]);
+    } else {
+      setLastDate('');
+    }
+
+    if (course.id) {
+      fetchContracts({ courseId: course.id }).then((data) => {
         setUsers(data);
       });
     }
-  }, [id])
+
+    setCourseName(course.name);
+  }, [course])
 
   useEffect( () => {
       const arr = [];
@@ -55,34 +52,33 @@ const Dogovor2 = observer(() => {
     
   }, [users])
 
-
-  useEffect(() => {
-    if (date) {
-      let dates = date.split("-");
-      dates = dates.map(function (el) {
-        return el + `.${yearText.name}`;
-      });
-      setLastDate(dates[1]);
-    } else {
-      setLastDate('');
-    }
-  }, [date]);
-
-
   function addCour() {
-    if (value && id && name) {
+    if (course.id) {
       setDogovor([
         ...dogovor,
         {
-          num: value,
-          name: name,
+          num: course.number,
+          name: course.name,
           lastDate: lastDate,
           users: nameUsers,
         },
       ]);
-      setValue("");
-      setName("");
       setLastDate("");
+    }
+  }
+
+  function updateCourse(number) {
+    let empty = number === '';
+    let isInteger = !isNaN(+number);
+    if (!empty && isInteger) {
+      fetchCourseByNumber(number)
+        .then((data) => {
+          if (data !== null) {
+            setCourse(data);
+          } else {
+            setCourse({});
+          }
+        });
     }
   }
 
@@ -120,8 +116,7 @@ const Dogovor2 = observer(() => {
           <Row>
             <Col md={10}>
               <input
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={(e) => updateCourse(e.target.value)}
                 className="cusInput"
                 type="number"
                 placeholder="Введите №ПК..."
@@ -137,11 +132,7 @@ const Dogovor2 = observer(() => {
               </Button>
             </Col>
           </Row>
-          {course.allCourses.map((cours) => {
-            if (cours.number == value) {
-              return <div key={cours.id}> {cours.name} </div>;
-            }
-          })}
+          {courseName}
         </div>
 
         <div style={{ marginTop: "4rem" }} className="coursHeader">

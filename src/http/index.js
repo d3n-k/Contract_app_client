@@ -1,13 +1,11 @@
 import axios from "axios";
 
 const $host = axios.create({
-     baseURL: 'https://pkd.bsmu.by'
-    // baseURL: 'http://localhost:5000'
+    baseURL: process.env.REACT_APP_BASE_URL
 })
 
 const $authHost = axios.create({
-    baseURL: 'https://pkd.bsmu.by'
-    // baseURL: 'http://localhost:5000'
+    baseURL: process.env.REACT_APP_BASE_URL
 })
 
 const authInterceptor = config => {

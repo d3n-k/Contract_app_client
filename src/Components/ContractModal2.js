@@ -130,11 +130,14 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
     return (course.type ? courseTypes[course.type - 1] : courseTypes[1]).name_r;
   }
 
-  function handleChange({ target: { value, name } }) {
+  function handleChange(e) {
+    let name = e.target.name;
+    let value = e.target.value;
     setPdf({ ...pdf, [name]: value });
     if (name === "serialNamber") {
       updateCourse(value);
     }
+    checkFieldError(e);
   }
 
   function updateCourse(number) {
@@ -158,6 +161,10 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
   }, [newDate]);
 
   const blurHandler = (e) => {
+    checkFieldError(e);
+  };
+
+  function checkFieldError(e) {
     let text = e.target.value;
     let empty = text === '';
     let isInteger = !isNaN(+text);
@@ -172,7 +179,7 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
         setFullNameError(empty);
         break;
     }
-  };
+  }
 
   let errorText = 'Заполните это поле!';
 
@@ -201,9 +208,6 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
         />
 
         <div>
-          {serNumberError && (
-            <div style={{ color: "red" }}>{errorText}</div>
-          )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="serialNamber"
@@ -214,6 +218,9 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
           />
           {courseName}
         </div>
+        {serNumberError && (
+            <div style={{ marginBottom:"-1rem", color: "red" }}>{errorText}</div>
+          )}
       </div>
       <div className="hr"></div>
       <div>
@@ -234,9 +241,6 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
         />
 
         <div>
-          {dirNumberError && (
-            <div style={{ color: "red" }}>{errorText}</div>
-          )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="directionNamber"
@@ -245,13 +249,13 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
             placeholder="Введите номер направления..."
             className="modal1_input"
           />
+          {dirNumberError && (
+            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+          )}
         </div>
       </div>
       <div className="hr"></div>
       <div>
-        {fullNameError && (
-          <div style={{ color: "red" }}>{errorText}</div>
-        )}
         <input
           onBlur={(e) => blurHandler(e)}
           name="fullName"
@@ -260,6 +264,9 @@ const ContractModal2 = observer(({ setVisible, setLoading }) => {
           className="modal1_input"
           type="text"
         />
+        {fullNameError && (
+          <div style={{ marginBottom: "-0.5rem", color: "red" }}>{errorText}</div>
+        )}
       </div>
       <div>
         <input

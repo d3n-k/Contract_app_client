@@ -130,11 +130,14 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
     return (course.type ? courseTypes[course.type - 1] : courseTypes[1]).name_r;
   }
 
-  function handleChange({ target: { value, name } }) {
+  function handleChange(e) {
+    let name = e.target.name;
+    let value = e.target.value;
     setPdf({ ...pdf, [name]: value });
     if (name === "serialNamber") {
       updateCourse(value);
     }
+    checkFieldError(e);
   }
 
   function updateCourse(number) {
@@ -158,6 +161,10 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
   }, [newDate])
 
   const blurHandler = (e) => {
+    checkFieldError(e);
+  };
+
+  function checkFieldError(e) {
     let text = e.target.value;
     let empty = text === '';
     let isInteger = !isNaN(+text);
@@ -172,7 +179,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
         setFullNameError(empty);
         break;
     }
-  };
+  }
 
   let errorText = 'Заполните это поле!';
 
@@ -202,9 +209,6 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
         />
 
         <div>
-          {serNumberError && (
-            <div style={{ color: "red" }}>{errorText}</div>
-          )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="serialNamber"
@@ -213,6 +217,9 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
             placeholder="Введите порядковый номер..."
             className="modal1_input"
           />{courseName}</div>
+          {serNumberError && (
+            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+          )}
       </div>
       <div className="hr"></div>
       <div>
@@ -233,9 +240,6 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
         />
 
         <div>
-          {dirNumberError && (
-            <div style={{ color: "red" }}>{errorText}</div>
-          )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="directionNamber"
@@ -244,13 +248,13 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
             placeholder="Введите номер направления..."
             className="modal1_input"
           />
+          {dirNumberError && (
+            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+          )}
         </div>
       </div>
       <div className="hr"></div>
       <div>
-        {fullNameError && (
-          <div style={{ color: "red" }}>{errorText}</div>
-        )}
         <input
           onBlur={(e) => blurHandler(e)}
           name="fullName"
@@ -259,6 +263,9 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           className="modal1_input"
           type="text"
         />
+        {fullNameError && (
+          <div style={{ marginBottom:"-0.5rem", color: "red" }}>{errorText}</div>
+        )}
       </div>
       <div>
         <input
@@ -317,65 +324,6 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           type="text"
         />
       </div>
-      {/* <div className="hr"></div>
-      <p className="modal1_p">
-        Местонахождение организации с указанием почтовых индекса и адреса
-      </p>
-      <div>
-        <input
-          name="organAddress"
-          onChange={handleChange}
-          placeholder="Введите местонахождение организации..."
-          className="modal1_input"
-          type="text"
-        />
-      </div>
-      <div className="hr"></div>
-      <div>
-        <p className="modal1_p">
-          Должность, фамилия и инициалы лица, на которое возложено заключение
-          договора в родительном падеже.
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Примеры:
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Главного врача, директора, или лица, исполняющего их обязанности, в
-          установленном порядке
-        </p>
-      </div>
-      <div>
-        <input
-          name="mainPosition"
-          onChange={handleChange}
-          placeholder="Должность, ФИО в родительном падеже..."
-          className="modal1_input"
-          type="text"
-        />
-      </div>
-      <div className="hr"></div>
-      <div>
-        <p className="modal1_p">
-          Основания для заключения договора в родительном падеже(устава,
-          договора или доверенности, дата и номер утверждения, выдачи,
-          регистрации)
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Примеры:
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Устава от 01.01.2016 №1;
-        </p>
-      </div>
-      <div>
-        <input
-          name="charter"
-          onChange={handleChange}
-          placeholder="Устав или доверенность, дата и номер утверждения, выдачи, регистрации в родительном падеже..."
-          className="modal1_input"
-          type="text"
-        />
-      </div> */}
       <div className="hr"></div>
       <div style={{ display: "flex" }}>
         <input

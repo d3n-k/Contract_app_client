@@ -14,7 +14,7 @@ export const yet = (time) => {
     let startDate = new Date(time);
     startDate.setDate(startDate.getDate() - 16);
     let nowDate = new Date();
-     if (d > new Date(time)) {
+     if (d > new Date(time).getTime()) {
        return 'forbidden';
      } else if (nowDate < startDate) {
        return 'early';

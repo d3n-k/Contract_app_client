@@ -27,21 +27,13 @@ const Print = observer(() => {
   const [date, setDate] = useState('');
   const [price, setPrice] = useState('');
 
-  const [selectEmpty, setSelectEmpty] = useState(false);
-  const [cathValueEmpty, setCathValueEmpty] = useState(false);
-  const [firstNumEmpty, setFirstNumEmpty] = useState(false);
-  const [firstNapravEmpty, setFirstNapravEmpty] = useState(false);
-  const [colNapravEmpty, setColNapravEmpty] = useState(false);
-
   const [formValid, setFormValid] = useState(false);
 
-  const [selectError, setSelectError] = useState("Заполните это поле!");
-  const [cathValueError, setCathValueError] = useState("Заполните это поле!");
-  const [firstNumError, setFirstNumError] = useState("Заполните это поле!");
-  const [firstNapravError, setFirstNapravError] = useState(
-    "Заполните это поле!"
-  );
-  const [colNapravError, setColNapravError] = useState("Заполните это поле!");
+  const [selectError, setSelectError] = useState(false);
+  const [cathValueError, setCathValueError] = useState(false);
+  const [firstNumError, setFirstNumError] = useState(false);
+  const [firstNapravError, setFirstNapravError] = useState(false);
+  const [colNapravError, setColNapravError] = useState(false);
   const [id, setId] = useState('');
   const [colvo, setColvo] = useState('');
 
@@ -64,7 +56,7 @@ const Print = observer(() => {
 
   useEffect(() => {
     fetchCathedras().then((data) => cathedra.setCathedras(data));
-    fetchYear().then((data) => setYearText(data[0]));
+    fetchYear().then((data) => setYearText(data[0].name));
   }, []);
 
   useEffect(() => {
@@ -86,34 +78,6 @@ const Print = observer(() => {
     });
   }, [firstNum]);
 
-  useEffect(() => {
-    if (!cathValue) {
-      setCathValueError('Заполните это поле!');
-    } else{
-      setCathValueError('');
-    }
-    if (!colNaprav) {
-      setColNapravError('Заполните это поле!');
-    } else{
-      setColNapravError('');
-    }
-    if (!firstNum) {
-      setFirstNumError('Заполните это поле!');
-    } else{
-      setFirstNumError('');
-    }
-    if (!firstNaprav) {
-      setFirstNapravError('Заполните это поле!');
-    } else{
-      setFirstNapravError('');
-    }
-    if (!select) {
-      setSelectError('Заполните это поле!');
-    } else{
-      setSelectError('');
-    }
-  }, [cathValue, colNaprav, firstNum, firstNaprav, select]);
-
   useEffect( () => {
       if (colNaprav == 1) {
         setColvo(`${firstNaprav}`);
@@ -122,7 +86,6 @@ const Print = observer(() => {
         setColvo(`${firstNaprav}-${lastNaprav}`);
       }
   }, [firstNaprav, colNaprav])
-
 
   useEffect(() => {
     if(cathValueError || colNapravError || firstNumError || firstNapravError || selectError) {
@@ -176,7 +139,7 @@ const Print = observer(() => {
       cour: cour,
       date: date,
       price: price,
-      year: yearText.name,
+      year: yearText,
     };
 
     if (select == 'Бесплатное') {
@@ -228,26 +191,54 @@ const Print = observer(() => {
   }
 
   const blurHandler = (e) => {
+    let isEmpty = e.target.value === "" || e.target.value === undefined;
     switch (e.target.name) {
       case "select":
-        setSelectEmpty(true);
+        setSelectError(isEmpty);
         break;
       case "cath":
-        setCathValueEmpty(true);
+        setCathValueError(isEmpty);
         break;
       case "firstNum":
-        setFirstNumEmpty(true);
+        setFirstNumError(isEmpty);
         break;
       case "firstNaprav":
-        setFirstNapravEmpty(true);
+        setFirstNapravError(isEmpty);
         break;
       case "colNaprav":
-        setColNapravEmpty(true);
+        setColNapravError(isEmpty);
         break;
     }
   };
 
-  
+  const changeHandler = (e) => {
+    let value = e.target.value;
+    let isEmpty = value === "" || value === undefined;
+    switch (e.target.name) {
+      case "select":
+        setSelect(value);
+        setSelectError(isEmpty);
+        break;
+      case "cath":
+        setCathValue(value);
+        setCathValueError(isEmpty);
+        break;
+      case "firstNum":
+        setFirstNum(value);
+        setFirstNumError(isEmpty);
+        break;
+      case "firstNaprav":
+        setFirstNaprav(value);
+        setFirstNapravError(isEmpty);
+        break;
+      case "colNaprav":
+        setColNaprav(value);
+        setColNapravError(isEmpty);
+        break;
+    }
+  };
+
+  let errorText = 'Заполните это поле!';
 
   return (
     <div style={{ marginBottom: "4rem" }}>
@@ -257,13 +248,10 @@ const Print = observer(() => {
           Печать направлений
         </h2>
         <div className="select_div">
-          {selectEmpty && selectError  &&(
-            <div style={{ color: "red" }}>{selectError}</div>
-          )}
           <select
             onBlur={(e) => blurHandler(e)}
             name="select"
-            onChange={(e) =>setSelect(e.target.value)}
+            onChange={(e) =>changeHandler(e)}
             value={select}
             className="select"
           >
@@ -273,15 +261,16 @@ const Print = observer(() => {
             <option value="Платное_юр">Платное (юр. лицо)</option>
           </select>
 
+          {selectError  &&(
+            <div style={{ marginTop: "-2rem", color: "red" }}>{errorText}</div>
+          )}
+
           <div className="cath_input">
-            {cathValueEmpty && cathValueError && (
-              <div style={{ color: "red" }}>{cathValueError}</div>
-            )}
             <input
               onBlur={(e) => blurHandler(e)}
               name="cath"
               value={cathValue}
-              onChange={(e) => setCathValue(e.target.value)}
+              onChange={(e) => changeHandler(e)}
               onClick={() => setIsOpen(true)}
               type="text"
               placeholder="Введите кафедру..."
@@ -301,6 +290,9 @@ const Print = observer(() => {
                   })
                 : null}
             </ul>
+            {cathValueError && (
+              <div style={{ marginBottom: "-1.0rem", color: "red" }}>{errorText}</div>
+            )}
           </div>
 
           {cathedra.cathedras.map((cath) => {
@@ -345,14 +337,11 @@ const Print = observer(() => {
                 : null}
             </ul>
           </div>
-          {firstNumEmpty && firstNumError && (
-            <div style={{ color: "red" }}>{firstNumError}</div>
-          )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="firstNum"
             value={firstNum}
-            onChange={(e) => setFirstNum(e.target.value)}
+            onChange={(e) => changeHandler(e)}
             type="number"
             placeholder="Порядковый номер образовательной программы..."
           />
@@ -361,29 +350,32 @@ const Print = observer(() => {
               return <div key={cours.id}> {cours.name} </div>;
             }
           })}
-          {firstNapravEmpty && firstNapravError && (
-            <div style={{ color: "red" }}>{firstNapravError}</div>
+          {firstNumError && (
+            <div style={{ color: "red" }}>{errorText}</div>
           )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="firstNaprav"
             value={firstNaprav}
-            onChange={(e) => setFirstNaprav(e.target.value)}
+            onChange={(e) => changeHandler(e)}
             style={{ marginTop: "3rem" }}
             type="number"
             placeholder="Первый номер направления..."
           />
-          {colNapravEmpty && colNapravError && (
-            <div style={{ color: "red" }}>{colNapravError}</div>
+          {firstNapravError && (
+            <div style={{ color: "red" }}>{errorText}</div>
           )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="colNaprav"
             value={colNaprav}
-            onChange={(e) => setColNaprav(e.target.value)}
+            onChange={(e) => changeHandler(e)}
             type="number"
             placeholder="Количество направлений..."
           />
+          {colNapravError && (
+            <div style={{ marginBottom: "-1.5rem", color: "red" }}>{errorText}</div>
+          )}
         </div>
         <Button
           disabled={!formValid}

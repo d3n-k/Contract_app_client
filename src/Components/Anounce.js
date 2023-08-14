@@ -15,9 +15,7 @@ const Anounce = observer(() => {
     <div style={{backgroundColor: '#cdcaca' }}>
       <Container style={{ paddingTop: "5rem", paddingBottom: "5rem"}}>
       {announ.announces.map((ann) => {
-        return <div style={{backgroundColor: 'white' }} key={ann.id} className="anounce">
-            {ann.name}
-        </div>;
+        return <div style={{backgroundColor: 'white' }} key={ann.id} className="anounce" dangerouslySetInnerHTML={{__html: ann.name}} />
       })}
     </Container>
     </div>

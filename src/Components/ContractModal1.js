@@ -1,34 +1,28 @@
 import { useContext, useState, useEffect } from "react";
 import details1 from "./../imgs/contract1_details_1.jpg";
 import details2 from "./../imgs/contract1_details_2.jpg";
-import { Button, Container, Row, Col} from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { saveAs } from "file-saver";
 import { observer } from "mobx-react-lite";
-import { Context } from "..";
-import { fetchAllCourses } from "../http/courseApi";
+import { fetchCourseByNumber } from "../http/courseApi";
 import translate from 'translate';
 import { fetchYear } from "../http/YearApi";
 import { createContract } from "../http/ContractApi";
 import { da, yet } from "../functions/dateFunc";
-
+import { fetchCourseTypes } from "../http/courseTypeApi";
 
 const ContractModal1 = observer(({ setVisible, setLoading }) => {
-  
-  const [serNumberEmpty, setSerNumberEmpty] = useState(false);
-  const [dirNumberEmpty, setDirNumberEmpty] = useState(false);
-  const [fullNameEmpty, setFullNameEmpty] = useState(false);
   const [formValid, setFormValid] = useState(false);
   const [checked, setChecked] = useState(true);
+  const [courseTypes, setCourseTypes] = useState(['Тип1', 'Тип2']);
 
+  const [serNumberError, setSerNumberError] = useState(false);
+  const [dirNumberError, setDirNumberError] = useState(false);
+  const [fullNameError, setFullNameError] = useState(false);
 
-  const [serNumberError, setSerNumberError] = useState("Заполните это поле!");
-  const [dirNumberError, setDirNumberError] = useState("Заполните это поле!");
-  const [fullNameError, setFullNameError] = useState("Заполните это поле!");
-
-  const [server, setServer] = useState({});
-  const [cour, setCour] = useState("");
-  const [date, setDate] = useState("");
+  const [course, setCourse] = useState({});
+  const [courseName, setCourseName] = useState("");
   const [newDate, setNewDate] = useState("");
   const [img, setImg] = useState(false);
   const [img2, setImg2] = useState(false);
@@ -51,48 +45,29 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
   });
 
   const [yearText, setYearText] = useState({});
-
   const [time, setTime] = useState('');
 
-  const [id, setId] = useState('');
-
-  const { course } = useContext(Context);
-  const { year } = useContext(Context);
-
-
-  translate.engine = "google"; 
+  translate.engine = "google";
   translate.key = process.env.GOOGLE_KEY;
 
-  useEffect( () => {
+  useEffect(() => {
     if (!checked || serNumberError || dirNumberError || fullNameError) {
       setFormValid(false);
     } else {
       setFormValid(true);
     }
- }, [checked, serNumberError, dirNumberError, fullNameError])
-
- useEffect(() => {
-  fetchAllCourses().then((data) => course.setAllCourses(data));
-  fetchYear().then((data) => setYearText(data[0]));
-}, []);
-
+  }, [checked, serNumberError, dirNumberError, fullNameError])
 
   useEffect(() => {
-    course.allCourses.forEach((cours) => {
-      if (cours.number == pdf.serialNamber) {
-        setCour(cours.name);
-        setId(cours.id);
-        setDate(cours.date);
-      }
-
-    });
-  }, [pdf.serialNamber]);
+    fetchCourseTypes().then((data) => setCourseTypes(data));
+    fetchYear().then((data) => setYearText(data[0].name));
+  }, []);
 
   useEffect(() => {
-    if (date) {
-      let dates = date.split("-");
+    if (course.date) {
+      let dates = course.date.split("-");
       dates = dates.map(function (el) {
-        return el + `.${yearText.name}`;
+        return el + `.${yearText}`;
       });
       dates[0] = dates[0] + " по ";
       let res = dates.join("");
@@ -100,7 +75,8 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
     } else {
       setNewDate('');
     }
-  }, [date]);
+    setCourseName(course.name);
+  }, [course]);
 
   function clickDetails1() {
     if (img) {
@@ -119,23 +95,30 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
   }
 
   function createAndDownloadPdf() {
-    if (yet(time) === 'go'){
+    const server = {
+      ...pdf,
+      cour: course.name,
+      date: newDate,
+      type: getCourseType(course),
+      year: yearText
+    };
+    if (yet(time) === 'go') {
       setLoading(true);
-    axios
-      .post(process.env.REACT_APP_HOST + "/create-pdf1", server)
-      .then(() => 
-        axios.get(process.env.REACT_APP_HOST + "/contract1", { responseType: "blob" })
-      )
-      .then((res) => {
-        const pdfBlob = new Blob([res.data], { type: "application/pdf" });
-        const text = translate(pdf.fullName, { from : 'ru', to : "en"  });
-        text.then(data => {
-          data = data.split(' ').join('_');
-          saveAs(pdfBlob, `BGMU_Dogovor_${data}.pdf`);
-          createContract({ fullname: server.fullName, courseId: id, naprav: server.directionNamber }).then((data) => {});
-        })
-      }).finally( () => setLoading(false));
-    setVisible(false);
+      axios
+        .post(process.env.REACT_APP_HOST + "/create-pdf1", server)
+        .then(() =>
+          axios.get(process.env.REACT_APP_HOST + "/contract1", { responseType: "blob" })
+        )
+        .then((res) => {
+          const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+          const text = translate(pdf.fullName, { from: 'ru', to: "en" });
+          text.then(data => {
+            data = data.split(' ').join('_');
+            saveAs(pdfBlob, `BGMU_Dogovor_${data}.pdf`);
+            createContract({ fullname: server.fullName, courseId: course.id, naprav: server.directionNamber }).then((data) => { });
+          })
+        }).finally(() => setLoading(false));
+      setVisible(false);
     } else if (yet(time) === 'forbidden') {
       alert('Курс уже начался!');
     } else {
@@ -143,58 +126,66 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
     }
   }
 
-  
+  const getCourseType = (course) => {
+    return (course.type ? courseTypes[course.type - 1] : courseTypes[1]).name_r;
+  }
 
-  function handleChange({ target: { value, name } }) {
+  function handleChange(e) {
+    let name = e.target.name;
+    let value = e.target.value;
     setPdf({ ...pdf, [name]: value });
-    if (!pdf.serialNamber) {
-      setSerNumberError('Заполните это поле!');
-    } else {
-      setSerNumberError('');
+    if (name === "serialNamber") {
+      updateCourse(value);
     }
-    if (!pdf.directionNamber) {
-      setDirNumberError('Заполните это поле!');
-    } else {
-      setDirNumberError('');
-    }
-    if (!pdf.fullName) {
-      setFullNameError('Заполните это поле!');
-    } else {
-      setFullNameError('');
+    checkFieldError(e);
+  }
+
+  function updateCourse(number) {
+    let empty = number === '';
+    let isInteger = !isNaN(+number);
+    if (!empty && isInteger) {
+      fetchCourseByNumber(number)
+        .then((data) => {
+          if (data !== null) {
+            setCourse(data);
+          } else {
+            setCourse({});
+          }
+        });
+      setSerNumberError(false);
     }
   }
 
   useEffect(() => {
-    const newObj = {
-      ...pdf,
-      cour: cour,
-      date: newDate,
-    };
-    setServer(newObj);
-  }, [pdf]);
-
-  useEffect(() => {
-      setTime(da(newDate));
+    setTime(da(newDate));
   }, [newDate])
 
-
   const blurHandler = (e) => {
+    checkFieldError(e);
+  };
+
+  function checkFieldError(e) {
+    let text = e.target.value;
+    let empty = text === '';
+    let isInteger = !isNaN(+text);
     switch (e.target.name) {
       case "serialNamber":
-        setSerNumberEmpty(true);
+        setSerNumberError(empty || !isInteger);
         break;
       case "directionNamber":
-        setDirNumberEmpty(true);
+        setDirNumberError(empty || !isInteger);
         break;
       case "fullName":
-        setFullNameEmpty(true);
+        setFullNameError(empty);
         break;
     }
-  };
+  }
+
+  let errorText = 'Заполните это поле!';
 
   return (
     <div>
-     
+
       <h5 className="modal1_title">
         Регистрация на повышение квалификации за счет бюджетных средств (заявление на обучение)
       </h5>
@@ -218,23 +209,17 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
         />
 
         <div>
-          {serNumberEmpty && serNumberError && (
-            <div style={{ color: "red" }}>{serNumberError}</div>
-          )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="serialNamber"
             onChange={handleChange}
-            type="text"
+            type="number"
             placeholder="Введите порядковый номер..."
             className="modal1_input"
-          />
-          {course.allCourses.map((cours) => {
-            if (cours.number == pdf.serialNamber) {
-              return <div key={cours.id}> {cours.name} </div>;
-            }
-          })}
-        </div>
+          />{courseName}</div>
+          {serNumberError && (
+            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+          )}
       </div>
       <div className="hr"></div>
       <div>
@@ -255,24 +240,21 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
         />
 
         <div>
-          {dirNumberEmpty && dirNumberError && (
-            <div style={{ color: "red" }}>{dirNumberError}</div>
-          )}
           <input
             onBlur={(e) => blurHandler(e)}
             name="directionNamber"
             onChange={handleChange}
-            type="text"
+            type="number"
             placeholder="Введите номер направления..."
             className="modal1_input"
           />
+          {dirNumberError && (
+            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+          )}
         </div>
       </div>
       <div className="hr"></div>
       <div>
-        {fullNameEmpty && fullNameError && (
-          <div style={{ color: "red" }}>{fullNameError}</div>
-        )}
         <input
           onBlur={(e) => blurHandler(e)}
           name="fullName"
@@ -281,6 +263,9 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           className="modal1_input"
           type="text"
         />
+        {fullNameError && (
+          <div style={{ marginBottom:"-0.5rem", color: "red" }}>{errorText}</div>
+        )}
       </div>
       <div>
         <input
@@ -339,65 +324,6 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           type="text"
         />
       </div>
-      {/* <div className="hr"></div>
-      <p className="modal1_p">
-        Местонахождение организации с указанием почтовых индекса и адреса
-      </p>
-      <div>
-        <input
-          name="organAddress"
-          onChange={handleChange}
-          placeholder="Введите местонахождение организации..."
-          className="modal1_input"
-          type="text"
-        />
-      </div>
-      <div className="hr"></div>
-      <div>
-        <p className="modal1_p">
-          Должность, фамилия и инициалы лица, на которое возложено заключение
-          договора в родительном падеже.
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Примеры:
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Главного врача, директора, или лица, исполняющего их обязанности, в
-          установленном порядке
-        </p>
-      </div>
-      <div>
-        <input
-          name="mainPosition"
-          onChange={handleChange}
-          placeholder="Должность, ФИО в родительном падеже..."
-          className="modal1_input"
-          type="text"
-        />
-      </div>
-      <div className="hr"></div>
-      <div>
-        <p className="modal1_p">
-          Основания для заключения договора в родительном падеже(устава,
-          договора или доверенности, дата и номер утверждения, выдачи,
-          регистрации)
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Примеры:
-        </p>
-        <p style={{ fontFamily: "Roboto" }} className="modal1_p">
-          Устава от 01.01.2016 №1;
-        </p>
-      </div>
-      <div>
-        <input
-          name="charter"
-          onChange={handleChange}
-          placeholder="Устав или доверенность, дата и номер утверждения, выдачи, регистрации в родительном падеже..."
-          className="modal1_input"
-          type="text"
-        />
-      </div> */}
       <div className="hr"></div>
       <div style={{ display: "flex" }}>
         <input

@@ -29,11 +29,6 @@ const Admin = observer(() => {
   };
 
   function deleteAd(id, login) {
-    // loginFunc("MaltsauSV@bsmu.by", "9576330109576$t").then((data) => {
-    //   alert(data);
-    // }).catch((e) => {
-    //   alert(e.message);
-    // });
     deleteAdmin(id).then((data) => {
       user.users.forEach((us) => {
         if (us.login === login + "@bsmu.by") {

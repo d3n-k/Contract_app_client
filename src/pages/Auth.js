@@ -61,7 +61,7 @@ const Auth = observer(() => {
   }, [loginError, passwordError]);
 
   const auth = async () => {
-    if (admin.admins.filter((obj) => obj.login === login).length > 0) {
+    if (admin.admins.filter((obj) => obj.login.toLowerCase() === login.toLowerCase()).length > 0) {
       try {
         let data;
 

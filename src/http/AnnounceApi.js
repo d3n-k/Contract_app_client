@@ -11,8 +11,8 @@ export const fetchAnnounce = async () => {
 }
 
 
-export const updateAnnounce = async (id, announce) => {
-    const {data} = await $authHost.put('api/announce/' + id, announce);
+export const updateAnnounce = async (announce) => {
+    const {data} = await $authHost.put('api/announce', announce);
     return data;
 }
 

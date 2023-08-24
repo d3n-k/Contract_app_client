@@ -211,15 +211,16 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
         <div>
           <input
             onBlur={(e) => blurHandler(e)}
+            onWheel={(e) => e.target.blur()}
             name="serialNamber"
             onChange={handleChange}
             type="number"
             placeholder="Введите порядковый номер..."
             className="modal1_input"
           />{courseName}</div>
-          {serNumberError && (
-            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
-          )}
+        {serNumberError && (
+          <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+        )}
       </div>
       <div className="hr"></div>
       <div>
@@ -242,6 +243,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
         <div>
           <input
             onBlur={(e) => blurHandler(e)}
+            onWheel={(e) => e.target.blur()}
             name="directionNamber"
             onChange={handleChange}
             type="number"
@@ -264,7 +266,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           type="text"
         />
         {fullNameError && (
-          <div style={{ marginBottom:"-0.5rem", color: "red" }}>{errorText}</div>
+          <div style={{ marginBottom: "-0.5rem", color: "red" }}>{errorText}</div>
         )}
       </div>
       <div>

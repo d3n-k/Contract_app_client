@@ -3,8 +3,8 @@ import { Button } from "react-bootstrap";
 import { fetchAdmins } from "../http/AdminApi";
 import { Context } from "..";
 import { observer } from "mobx-react-lite";
-import {  useNavigate } from "react-router-dom";
-import { COURSE_ROUTE, HOME_ROUTE} from "../utils/consts";
+import { useNavigate } from "react-router-dom";
+import { COURSE_ROUTE, HOME_ROUTE } from "../utils/consts";
 import { loginFunc } from "../http/userApi";
 import close from './../imgs/close.svg'
 
@@ -61,7 +61,7 @@ const Auth = observer(() => {
   }, [loginError, passwordError]);
 
   const auth = async () => {
-    if (admin.admins.filter((obj) => obj.login === login).length > 0) {
+    if (admin.admins.filter((obj) => obj.login.toLowerCase() === login.toLowerCase()).length > 0) {
       try {
         let data;
 
@@ -87,9 +87,9 @@ const Auth = observer(() => {
       }}
       className="auth_div"
     >
-      <div style={{position: 'relative'}} className="auth">
+      <div style={{ position: 'relative' }} className="auth">
 
-      <img onClick={() => navigate(HOME_ROUTE)} src={close} alt="" className="close_img" />
+        <img onClick={() => navigate(HOME_ROUTE)} src={close} alt="" className="close_img" />
 
         <h3>Администрирование договоров ПК</h3>
         <h4 style={{ textAlign: "center", color: "green", marginTop: "1rem" }}>
@@ -104,7 +104,7 @@ const Auth = observer(() => {
           placeholder="Введите логин..."
         />
         {loginEmpty && loginError && (
-          <div style={{ color: "red" }}>{loginError}</div>
+          <div style={{ color: "red", marginBottom: "-1.5rem" }}>{loginError}</div>
         )}
         <input
           onBlur={(e) => blurHandler(e)}
@@ -115,7 +115,7 @@ const Auth = observer(() => {
           placeholder="Введите пароль..."
         />
         {passwordEmpty && passwordError && (
-          <div style={{ color: "red" }}>{passwordError}</div>
+          <div style={{ color: "red", marginBottom: "-1.5rem" }}>{passwordError}</div>
         )}
 
         <Button
@@ -123,6 +123,8 @@ const Auth = observer(() => {
           onClick={auth}
           variant="success"
           style={{
+            width: "20%",
+            marginLeft: "40%",
             marginTop: "2rem",
             fontFamily: "Roboto",
             fontSize: "20px",

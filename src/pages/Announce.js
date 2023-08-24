@@ -20,7 +20,7 @@ const Announce = observer(() => {
   }, []);
 
   const updateAnn = () => {
-    updateAnnounce(announce.id, announce).then(
+    updateAnnounce(announce).then(
       (data) => {
         window.location.reload();
       }

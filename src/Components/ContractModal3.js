@@ -218,6 +218,7 @@ const ContractModal3 = observer(({ setVisible, setLoading }) => {
         <div>
           <input
             onBlur={(e) => blurHandler(e)}
+            onWheel={(e) => e.target.blur()}
             name="serialNamber"
             onChange={handleChange}
             type="number"
@@ -227,8 +228,8 @@ const ContractModal3 = observer(({ setVisible, setLoading }) => {
           {courseName}
         </div>
         {serNumberError && (
-            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
-          )}
+          <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+        )}
       </div>
       <div className="hr"></div>
       <div>
@@ -251,6 +252,7 @@ const ContractModal3 = observer(({ setVisible, setLoading }) => {
         <div>
           <input
             onBlur={(e) => blurHandler(e)}
+            onWheel={(e) => e.target.blur()}
             name="directionNamber"
             onChange={handleChange}
             type="number"

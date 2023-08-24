@@ -45,7 +45,7 @@ function Navibar() {
                   style={{ color: "white", textDecoration: "none" }}
                   rel="noreferrer"
                   target="_blank"
-                  href="https://www.bsmu.by/downloads/fakulteti/f_fpk/2021-2/12-21/10-21/bsmu-svodniy-plan-2022.pdf"
+                  href="https://www.bsmu.by/upload/docs/fakulteti/f_fpk/2021-2/12-21/10-21/bsmu-svodniy-plan-2022.pdf"
                 >
                   Сводный план
                 </a>
@@ -64,7 +64,7 @@ function Navibar() {
                   style={{ color: "white", textDecoration: "none" }}
                   rel="noreferrer"
                   target="_blank"
-                  href="https://www.bsmu.by/downloads/fakulteti/f_fpk/2021-2/12-21/10-21/bsmu-svodniy-plan-2022.pdf"
+                  href="https://www.bsmu.by/upload/docs/fakulteti/f_fpk/2021-2/12-21/10-21/bsmu-svodniy-plan-2022.pdf"
                 >
                   Сводный план
                 </a>

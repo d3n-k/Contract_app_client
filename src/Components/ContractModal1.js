@@ -102,7 +102,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
       type: getCourseType(course),
       year: yearText
     };
-    //if (yet(time) === 'go') {
+    if (yet(time) === 'go') {
       setLoading(true);
       axios
         .post(process.env.REACT_APP_HOST + "/create-pdf1", server)
@@ -119,11 +119,11 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           })
         }).finally(() => setLoading(false));
       setVisible(false);
-    // } else if (yet(time) === 'forbidden') {
-    //   alert('Курс уже начался!');
-    // } else {
-    //   alert('Регистрация на курс начнётся за две недели до начала!');
-    // }
+    } else if (yet(time) === 'forbidden') {
+      alert('Курс уже начался!');
+    } else {
+      alert('Регистрация на курс начнётся за две недели до начала!');
+    }
   }
 
   const getCourseType = (course) => {
@@ -218,9 +218,9 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
             placeholder="Введите порядковый номер..."
             className="modal1_input"
           />{courseName}</div>
-          {serNumberError && (
-            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
-          )}
+        {serNumberError && (
+          <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+        )}
       </div>
       <div className="hr"></div>
       <div>
@@ -266,7 +266,7 @@ const ContractModal1 = observer(({ setVisible, setLoading }) => {
           type="text"
         />
         {fullNameError && (
-          <div style={{ marginBottom:"-0.5rem", color: "red" }}>{errorText}</div>
+          <div style={{ marginBottom: "-0.5rem", color: "red" }}>{errorText}</div>
         )}
       </div>
       <div>

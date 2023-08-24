@@ -109,7 +109,7 @@ const ContractModal3 = observer(({ setVisible, setLoading }) => {
       price: course.price,
       year: yearText
     };
-    //if (yet(time) === 'go') {
+    if (yet(time) === 'go') {
       setLoading(true);
       axios
         .post(process.env.REACT_APP_HOST + "/create-pdf3", server)
@@ -127,11 +127,11 @@ const ContractModal3 = observer(({ setVisible, setLoading }) => {
 
         }).finally(() => setLoading(false));
       setVisible(false);
-    // } else if (yet(time) === 'forbidden') {
-    //   alert('Курс уже начался!');
-    // } else {
-    //   alert('Регистрация на курс начнётся за две недели до начала!');
-    // }
+    } else if (yet(time) === 'forbidden') {
+      alert('Курс уже начался!');
+    } else {
+      alert('Регистрация на курс начнётся за две недели до начала!');
+    }
   }
 
   const getCourseType = (course) => {
@@ -228,8 +228,8 @@ const ContractModal3 = observer(({ setVisible, setLoading }) => {
           {courseName}
         </div>
         {serNumberError && (
-            <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
-          )}
+          <div style={{ marginBottom: "-1rem", color: "red" }}>{errorText}</div>
+        )}
       </div>
       <div className="hr"></div>
       <div>
